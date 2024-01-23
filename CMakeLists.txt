@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(template_pkg_ros2)
+project(rigid_body_mocap)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -15,6 +15,8 @@ find_package(rclcpp REQUIRED)
 find_package(rclpy REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(phasespace_msgs REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 ### NOTE if you want to add python libs add them here
 ament_python_install_package(python_lib)
@@ -24,27 +26,32 @@ ament_python_install_package(python_lib)
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
 
+include_directories (
+    ${EIGEN3_INCLUDE_DIR}
+  )
 
 ### NOTE add Cpp nodes
-add_executable(node src/node.cpp)
-target_include_directories(node PUBLIC
+add_executable(rb_capture src/rb_capture.cpp)
+target_include_directories(rb_capture PUBLIC
 ### NOTE you can add additional include dirs for Cpp here
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 ### NOTE
   $<INSTALL_INTERFACE:include>)
-target_compile_features(node PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
+target_compile_features(rb_capture PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
 
 ### NOTE add dependencies to the cpp target
-ament_target_dependencies(node
+ament_target_dependencies(rb_capture
   "rclcpp"
   "std_msgs"
   "nav_msgs"
   "geometry_msgs"
+  "phasespace_msgs"
+  "Eigen3"
 )
 ### NOTE
 
 
-install(TARGETS node
+install(TARGETS rb_capture
   DESTINATION lib/${PROJECT_NAME})
 
 
