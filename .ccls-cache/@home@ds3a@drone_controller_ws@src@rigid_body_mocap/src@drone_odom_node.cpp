@@ -27,17 +27,20 @@ class DroneOdomNode : public rclcpp::Node {
         this->declare_parameter("marker_o", rclcpp::PARAMETER_INTEGER);
         this->declare_parameter("marker_x", rclcpp::PARAMETER_INTEGER);
         this->declare_parameter("marker_y", rclcpp::PARAMETER_INTEGER);
+        this->declare_parameter("odom_rate", rclcpp::PARAMETER_DOUBLE);
 
         rclcpp::Parameter drone_name_param = this->get_parameter("drone_name");
         rclcpp::Parameter marker_o_param = this->get_parameter("marker_o");
         rclcpp::Parameter marker_x_param = this->get_parameter("marker_x");
         rclcpp::Parameter marker_y_param = this->get_parameter("marker_y");
+        rclcpp::Parameter odom_rate_param = this->get_parameter("odom_rate");
 
         this->drone_name = drone_name_param.as_string();
 
         this->marker_o = marker_o_param.as_int();
         this->marker_x = marker_x_param.as_int();
         this->marker_y = marker_y_param.as_int();
+        this->odom_rate = odom_rate_param.as_double();
 
         this->mocap_markers_subscription = this->create_subscription<MarkersMsg>(MARKERS_TOPIC, 10,
                                                                                  std::bind(&DroneOdomNode::mocap_markers_callback,
@@ -58,11 +61,13 @@ class DroneOdomNode : public rclcpp::Node {
 
 
     // other shit
+    double odom_rate;
     int marker_o;
     int marker_x;
     int marker_y;
     std::string drone_name;
     Eigen::Quaternion<double> orientation;
+    Eigen::Matrix3d rot_mat;
     Eigen::Vector3d Oo;
     Eigen::Vector3d Ox;
     Eigen::Vector3d Oy;
@@ -72,6 +77,26 @@ class DroneOdomNode : public rclcpp::Node {
     Eigen::Vector3d oz;
     bool drone_in_view=true;
 
+    void odom_publisher_timer_callback() {
+        if (!this->drone_in_view)
+            return;
+
+        this->ox = this->Ox - this->Oo;
+        this->oy = this->Oy - this->Oo;
+        this->ox.normalize();
+        this->oy.normalize();
+        this->oz = this->ox.cross(this->oy);
+
+
+        nav_msgs::msg::Odometry odom_msg;
+        odom_msg.pose.pose.position.x = (this->Ox.x() + this->Oy.x()) / 2.0;
+        odom_msg.pose.pose.position.y = (this->Ox.y() + this->Oy.y()) / 2.0;
+        odom_msg.pose.pose.position.z = (this->Ox.z() + this->Oy.z()) / 2.0;
+
+        // TODO create rotation matrix from ox oy and oz
+        // TODO convert rotation matrix to quaternion, and find the centroid by averaging Ox and Oy
+        // publish
+    }
 
     void mocap_markers_callback(const MarkersMsg::SharedPtr msg) {
         std::vector<marker_t> markers = msg->markers;
