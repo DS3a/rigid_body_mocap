@@ -39,6 +39,9 @@ target_include_directories(rb_capture PUBLIC
   $<INSTALL_INTERFACE:include>)
 target_compile_features(rb_capture PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
 
+
+
+
 ### NOTE add dependencies to the cpp target
 ament_target_dependencies(rb_capture
   "rclcpp"
@@ -53,6 +56,31 @@ ament_target_dependencies(rb_capture
 
 install(TARGETS rb_capture
   DESTINATION lib/${PROJECT_NAME})
+
+
+add_executable(drone_odom_node src/drone_odom_node.cpp)
+
+target_include_directories(drone_odom_node PUBLIC
+### NOTE you can add additional include dirs for Cpp here
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+### NOTE
+  $<INSTALL_INTERFACE:include>)
+target_compile_features(drone_odom_node PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
+
+### NOTE add dependencies to the cpp target
+ament_target_dependencies(drone_odom_node
+  "rclcpp"
+  "std_msgs"
+  "nav_msgs"
+  "geometry_msgs"
+  "phasespace_msgs"
+  "Eigen3"
+)
+### NOTE
+
+install(TARGETS drone_odom_node
+  DESTINATION lib/${PROJECT_NAME})
+
 
 
 ### NOTE add python nodes
