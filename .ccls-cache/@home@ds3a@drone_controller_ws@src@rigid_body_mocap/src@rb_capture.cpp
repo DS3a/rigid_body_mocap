@@ -14,7 +14,8 @@
 
 #include "phasespace_msgs/msg/markers.hpp"
 #include "phasespace_msgs/msg/marker.hpp"
-
+#include "phasespace_msgs/msg/rigid.hpp"
+#include "phasespace_msgs/msg/rigids.hpp"
 
 #define MARKERS_TOPIC "/phasespace/markers"
 

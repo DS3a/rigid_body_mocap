@@ -58,7 +58,7 @@ install(TARGETS rb_capture
   DESTINATION lib/${PROJECT_NAME})
 
 
-add_executable(drone_odom_node src/drone_odom_node.cpp)
+add_executable(drone_odom_node src/drone_odom_publisher.cpp)
 
 target_include_directories(drone_odom_node PUBLIC
 ### NOTE you can add additional include dirs for Cpp here
